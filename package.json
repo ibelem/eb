@@ -1,0 +1,26 @@
+{
+  "name": "eb",
+  "version": "1.0.0",
+  "description": "Searching newest free eBook from third-party sites.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ibelem/eb.git"
+  },
+  "keywords": [
+    "Book"
+  ],
+  "author": "Belem",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ibelem/eb/issues"
+  },
+  "homepage": "https://github.com/ibelem/eb#readme",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "superagent": "^2.3.0"
+  }
+}
