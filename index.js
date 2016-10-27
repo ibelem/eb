@@ -2,7 +2,7 @@ var express = require('express');
 var cheerio = require('cheerio');
 var request = require('superagent');
 require('superagent-proxy')(request);
-var proxy = process.env.http_proxy || 'http://child-prc.com:913';
+var proxy = process.env.http_proxy || 'http://child-prc.X.com:913';
 
 var baseurl = 'http://www.foxebook.net/';
 var url = 'http://www.foxebook.net/publisher/oreilly-media/';
@@ -22,7 +22,6 @@ function onresponse(err, res) {
         console.log(err);
     } else {
         //console.log(res.status);
-        //console.log(res.text);
         getbooklist(err, res.text);
     }
 }
@@ -32,21 +31,23 @@ function getbooklist(err, html) {
         console.log(err);
     } else {
         var $ = cheerio.load(html)
+        var $main = $('main.col-md-8');
+        var $ = cheerio.load($main.html());
         var items = [];
-        $('#content .row .col-md-9 h3 a').each(function (idx, element) {
-            var $element = $(element);
-            console.log($element.attr('title'));
-
-            var bookurl = baseurl + $element.attr('href');
-            bookurl = bookurl.replace('//', '/');
-
+        $('div.row').each(function (idx, elem) {
+            //var $element = $(element);
+            var $ = cheerio.load(elem);
+            var bookurlslash = baseurl + $('.col-md-9 a').attr('href');
+            var bookurl = bookurlslash.trim().replace('.net//', '.net/');
+            var bookthumburlh200 = 'http:' + $('.col-md-3 img').attr('src');
+            var bookimgurl = bookthumburlh200.trim().replace('._SL200_', '');
             items.push({
-                title: $element.attr('title'),
-                href: bookurl
+                title: $('.col-md-9 a').text(),
+                href: bookurl,
+                humburlh200: bookthumburlh200,
+                imgurl: bookimgurl
             });
-
-            console.log(items);
         });
-
+        console.log(items);
     }
 }
