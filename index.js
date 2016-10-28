@@ -43,8 +43,7 @@ function getUrlList(err) {
                 urllist.push(page)
             }
         }
-        //return urllist
-        return ['http://www.foxebook.net/publisher/oreilly-media/page/1/', 'http://www.foxebook.net/publisher/oreilly-media/page/2/']
+        return urllist
     }
 }
 
@@ -56,10 +55,9 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-for(var url of getUrlList()){
-    onRequest(url)
-    sleep(5000)
-}
+ 
+onRequest('http://www.foxebook.net/publisher/oreilly-media/')
+ 
 
 //Callback  Promise 
 function onRequest(url) {
