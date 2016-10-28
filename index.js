@@ -7,7 +7,7 @@ let mkdirp = require('mkdirp')
 let proxy = process.env.http_proxy || 'http://child-prc.X.com:913'
 let baseurl = 'http://www.foxebook.net/'
 let url = 'http://www.foxebook.net/publisher/oreilly-media/'
-let publisher =['oreilly-media', 'apress', 'manning-publications', 'packtpub', 'Wiley', 'wrox', 'addison-wesley-professional']
+let publisher = ['oreilly-media', 'apress', 'manning-publications', 'packtpub', 'Wiley', 'wrox', 'addison-wesley-professional']
 
 function createpublisherdir() {
     for (var pub of publisher) {
@@ -23,7 +23,7 @@ function createpublisherdir() {
 
 function geturllist() {
     var urllist = []
-    for(var pub of publisher) {
+    for (var pub of publisher) {
         for (var i = 1; i < 50; i++) {
             var page = 'http://www.foxebook.net/publisher/' + pub + '/page/' + i + '/'
             urllist.push(page)
@@ -33,7 +33,6 @@ function geturllist() {
 }
 
 //console.log(geturllist())
-//onrequest()
 //createpublisherdir()
 
 function onrequest() {
@@ -65,28 +64,61 @@ function getbooklist(err, html) {
         var $main = $('main.col-md-8')
         var $ = cheerio.load($main.html())
         var items = []
+        var authors = []
+        var format = []
         $('div.row').each(function (idx, elem) {
             var $ = cheerio.load(elem)
             var urlslash = baseurl + $('.col-md-9 a').attr('href')
             var url = urlslash.trim().replace('.net//', '.net/')
             var thumburl = 'http:' + $('.col-md-3 img').attr('src')
             var imgurl = thumburl.trim().replace('._SL200_', '')
+            var authorelement = $('.col-md-9 .info a')
+            $(authorelement).each(function (i, a) {
+                var authorclean = $(this).text().trim().replace('O\'Reilly Media', '').replace('Download', '')
+                if (authorclean.trim()) {
+                    authors.push(authorclean)
+                }
+            })
+            
+            var title = $('.col-md-9 a').attr('title').trim()
+            var publisherelement = $('.col-md-9 .info')[2]
+            var $ = cheerio.load(publisherelement)
+            var publisher = $('a').text().trim()
+            var lastline = $.text().trim().replace(publisher, '')
+            var publishdate = lastline.match(/\d{0,4}-\d{0,2}-\d{0,2}/g)[0]
+            var page = lastline.replace(publishdate, '').trim().match(/\d{1,6}\spages/g)[0].replace('pages', '').trim()
+            var formatlist = lastline.replace(publishdate, '').replace(page, '').replace('pages', '').trim().split(',')
+            for (var i of formatlist) {
+                if (i.trim()) {
+                    format.push(i)
+                }
+            }
+
             items.push({
-                title: $('.col-md-9 a').text(),
+                title: title,
                 href: url,
                 humburl: thumburl,
-                imgurl: imgurl
+                imgurl: imgurl,
+                author: authors,
+                publisher: publisher,
+                publishdate: publishdate,
+                page: page,
+                format: format
             })
+            authors = []
+            format = []
         })
         console.log(items)
     }
 }
 
-function setua(){
-    var num = Math.floor(Math.random()*5)
+onrequest()
+
+function setua() {
+    var num = Math.floor(Math.random() * 5)
     var ualist = [
         'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.59 Safari/537.36',
-        'Mozilla/5.0 (X11 Ubuntu Linux x86_64 rv:49.0) Gecko/20100101 Firefox/49.0', 
+        'Mozilla/5.0 (X11 Ubuntu Linux x86_64 rv:49.0) Gecko/20100101 Firefox/49.0',
         'Opera/9.80 (X11; Linux i686; Ubuntu/14.10) Presto/2.12.388 Version/12.16',
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246',
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/7046A194A'
