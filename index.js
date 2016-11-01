@@ -105,7 +105,7 @@ function getBookList(err, html, pub) {
                 }
             }
 
-            oreillymedia.create({
+            booklist.create({
                 title: title,
                 href: url,
                 humburl: thumburl,
@@ -149,7 +149,7 @@ var eBookSchema = new mongoose.Schema({
     lastupdate: Date
 })
 
-var oreillymedia = mongoose.model('oreillymedia', eBookSchema);
+var booklist = mongoose.model('booklist', eBookSchema);
 
 String.prototype.replaceArray = function (find, replace) {
     var replaceString = this;
