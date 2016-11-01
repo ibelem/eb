@@ -66,7 +66,6 @@ for (let pub of PUBLISHER) {
     }
 }
 
-
 function getBookList(err, html, pub) {
     if (err) { console.log(err) }
     else {
