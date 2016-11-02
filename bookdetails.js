@@ -3,7 +3,9 @@ const cheerio = require('cheerio')
 const request = require('superagent')
 require('superagent-proxy')(request)
 const Throttle = require('superagent-throttle')
-const book = require("./dbebook")
+const async = require('async')
+const mongoose = require('./db.js')
+const book = require('./dbebook.js')
 const ua = require("./ua")
 
 let proxy = process.env.http_proxy || 'http://child-prc.X.com:913'
@@ -12,11 +14,6 @@ const PUBLISHER = ['oreilly-media']
 const PUBLISHER2 = ['oreilly-media', 'apress', 'manning-publications', 'packtpub', 'wiley', 'wrox', 'addison-wesley-professional']
 const PUBLISHERLIST = ['O\'Reilly Media', 'Apress', 'Manning Publications', 'Packt Publishing', 'Wiley', 'Wrox', 'Addison-Wesley Professional']
 
-let pl = []
-for (let i in PUBLISHERLIST) {
-    pl.push(' ')
-}
-
 let throttle = new Throttle({
     active: true,
     rate: 5,
@@ -24,38 +21,42 @@ let throttle = new Throttle({
     concurrent: 5
 })
 
-for (let pub of PUBLISHER) {
-    let urllist = []
-    for (let i = 1; i < 3; i++) {
-        let page = 'http://www.foxebook.net/publisher/' + pub + '/page/' + i + '/'
-        urllist.push(page)
-    }
+function getURL() {
+    //let wherestr = {'author' : 'Mott'}
+    let wherestr = {}
+    let opt = { 'href': 1, 'title': 1, "_id": 0 }
 
-    for (let url of urllist) {
-        if (url.indexOf('/page/1/') > -1) {
-            url = url.replace('page/1/', '')
+    book.find(wherestr, opt, function (err, res) {
+        if (err) {
+            console.log(err)
         }
-        urlforjson = url
-        request
-            .get(url)
-            .set('User-Agent', ua)
-            .set('Accept', 'text/html,application/xhtml+xml,application/xmlq=0.9,image/webp,*/*q=0.8')
-            .set('Host', 'www.foxebook.net')
-            .set('Referer', 'http://www.foxebook.net/')
-            .withCredentials()
-            .proxy(proxy)
-            .use(throttle.plugin())
-            .end((err, res) => {
-                if (err) {
-                    console.log(err)
-                } else {
-                    console.log(res.status)
-                    getBookList(err, res.text, pub)
-                }
-            })
-
-    }
+        else {
+            console.log(res)
+        }
+    })
 }
+
+getURL()
+
+let url = ''
+request
+    .get(url)
+    .set('User-Agent', ua)
+    .set('Accept', 'text/html,application/xhtml+xml,application/xmlq=0.9,image/webp,*/*q=0.8')
+    .set('Host', 'www.foxebook.net')
+    .set('Referer', 'http://www.foxebook.net/')
+    .withCredentials()
+    .proxy(proxy)
+    //.use(throttle.plugin())
+    .end((err, res) => {
+        if (err) {
+            //console.log(err)
+        } else {
+            //console.log(res.status)
+            //getBookList(err, res.text, pub)
+        }
+    })
+ 
 
 function getBookList(err, html, pub) {
     if (err) { console.log(err) }
@@ -116,7 +117,7 @@ function getBookList(err, html, pub) {
         })
     }
 }
-
+ 
 String.prototype.replaceArray = function (find, replace) {
     var replaceString = this;
     for (var i = 0; i < find.length; i++) {

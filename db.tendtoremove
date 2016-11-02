@@ -1,0 +1,60 @@
+
+module.exports = {
+    init: function () {
+        console.log('Connecting to database')
+        mongoose.connect('mongodb://localhost:27017/ebook')
+        var db = mongoose.connection;
+        db.on('error', console.error.bind(console, 'connection error:'))
+        db.once('open', function callback() {
+            console.log('Successfully connected!')
+        })
+    },
+    createBook: function (title, href, humburl, imgurl,
+        author, publisher, publishdate, page,
+        format, edition, language, isbn10,
+        isbn13, description, tableofcontents, downloadurlpdf,
+        downloadurlepub, size, uploaddate, lastupdate) {
+        var n = new book({
+            title: title,
+            href: url,
+            humburl: thumburl,
+            imgurl: imgurl,
+            author: authors,
+            publisher: publisher,
+            publishdate: publishdate,
+            page: page,
+            format: format,
+            edition: edition,
+            language: language,
+            isbn10: isbn10,
+            isbn13: isbn13,
+            description: description,
+            tableofcontents: tableofcontents,
+            downloadurlpdf: downloadurlpdf,
+            downloadurlepub: downloadurlepub,
+            size: size,
+            uploaddate: uploaddate,
+            lastupdate: lastupdate
+        })
+        n.save(function (err, n) {
+            if (err)
+                console.log('Saving failed')
+            console.log('Saved ' + n.title)
+        })
+    },
+    getBook: function (res) {
+        var twisted = function (res) {
+            return function (err, data) {
+                if (err) {
+                    console.log('error occured');
+                    return;
+                }
+                res.send('Books are:\n');
+                console.log(data);
+            }
+        }
+        book.find({}, 'title', twisted(res));
+    }
+}
+
+book.getBook
