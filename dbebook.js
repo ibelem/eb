@@ -3,7 +3,7 @@ const mongoose = require('./db.js'), Schema = mongoose.Schema
 var eBookSchema = new Schema({
     title: String,
     href: String,
-    humburl: String,
+    thumburl: String,
     imgurl: String,
     author: Array,
     publisher: String,

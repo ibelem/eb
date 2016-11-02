@@ -26,7 +26,7 @@ let throttle = new Throttle({
 
 for (let pub of PUBLISHER) {
     let urllist = []
-    for (let i = 1; i < 3; i++) {
+    for (let i = 1; i < 2; i++) {
         let page = 'http://www.foxebook.net/publisher/' + pub + '/page/' + i + '/'
         urllist.push(page)
     }
@@ -99,7 +99,7 @@ function getBookList(err, html, pub) {
             book.create({
                 title: title,
                 href: url,
-                humburl: thumburl,
+                thumburl: thumburl,
                 imgurl: imgurl,
                 author: authors,
                 publisher: publisher,

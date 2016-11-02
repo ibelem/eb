@@ -6,7 +6,9 @@ const Throttle = require('superagent-throttle')
 const async = require('async')
 const mongoose = require('./db')
 const book = require('./dbebook')
-const ua = require("./ua")
+const ua = require('./ua')
+const fs = require('fs')
+const path = require('path')
 
 let proxy = process.env.http_proxy || 'http://child-prc.X.com:913'
 const BASEURL = 'http://www.foxebook.net/'
@@ -24,7 +26,9 @@ let throttle = new Throttle({
 function getURL() {
     //let wherestr = {'author' : 'Mott'}
     let wherestr = {}
-    let opt = { 'href': 1, 'title': 1, "_id": 0 }
+    //let opt = { 'href': 1, 'title': 1, "_id": 0 }
+
+    let opt = { 'humburl': 1, "_id": 0 }
 
     book.find(wherestr, opt, function (err, res) {
         if (err) {
@@ -32,6 +36,7 @@ function getURL() {
         }
         else {
             console.log(res)
+            fs.writeFileSync(path.join(__dirname, 'thumburl.json'), JSON.stringify(res));
         }
     })
 }
@@ -100,7 +105,7 @@ function getBookList(err, html, pub) {
             book.create({
                 title: title,
                 href: url,
-                humburl: thumburl,
+                thumburl: thumburl,
                 imgurl: imgurl,
                 author: authors,
                 publisher: publisher,
