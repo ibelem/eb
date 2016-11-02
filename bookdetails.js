@@ -4,8 +4,8 @@ const request = require('superagent')
 require('superagent-proxy')(request)
 const Throttle = require('superagent-throttle')
 const async = require('async')
-const mongoose = require('./db.js')
-const book = require('./dbebook.js')
+const mongoose = require('./db')
+const book = require('./dbebook')
 const ua = require("./ua")
 
 let proxy = process.env.http_proxy || 'http://child-prc.X.com:913'
