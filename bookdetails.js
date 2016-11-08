@@ -28,105 +28,99 @@ function getURL() {
     let wherestr = {}
     //let opt = { 'href': 1, 'title': 1, "_id": 0 }
 
-    let opt = { 'humburl': 1, "_id": 0 }
+    let opt = { 'href': 1, "_id": 0 }
 
     book.find(wherestr, opt, function (err, res) {
         if (err) {
             console.log(err)
         }
         else {
-            console.log(res)
-            fs.writeFileSync(path.join(__dirname, 'thumburl.json'), JSON.stringify(res));
+            //console.log(res)
+            fs.writeFileSync(path.join(__dirname, 'href.json'), JSON.stringify(res));
         }
     })
 }
 
-getURL()
+reqBookDetail('http://www.foxebook.net/gradle-recipes-for-android-master-the-new-build-system-for-android/')
 
-let url = ''
-request
-    .get(url)
-    .set('User-Agent', ua)
-    .set('Accept', 'text/html,application/xhtml+xml,application/xmlq=0.9,image/webp,*/*q=0.8')
-    .set('Host', 'www.foxebook.net')
-    .set('Referer', 'http://www.foxebook.net/')
-    .withCredentials()
-    .proxy(proxy)
-    //.use(throttle.plugin())
-    .end((err, res) => {
-        if (err) {
-            //console.log(err)
-        } else {
-            //console.log(res.status)
-            //getBookList(err, res.text, pub)
-        }
-    })
- 
+function reqBookDetail(url) {
+    request
+        .get(url)
+        .set('User-Agent', ua)
+        .set('Accept', 'text/html,application/xhtml+xml,application/xmlq=0.9,image/webp,*/*q=0.8')
+        .set('Host', 'www.foxebook.net')
+        .set('Referer', 'http://www.foxebook.net/')
+        .withCredentials()
+        .proxy(proxy)
+        .use(throttle.plugin())
+        .end((err, res) => {
+            if (err) {
+                console.log(err)
+            } else {
+                console.log(res.status)
+                getBookDetail(err, res.text, url)
+            }
+        })
+}
+/*
 
-function getBookList(err, html, pub) {
+*/
+
+function getBookDetail(err, html, url) {
+    let edition = ''
+    let language = ''
+    let isbn10 = 0
+    let isbn13 = 0
+    let description = ''
+    let tableofcontents = ''
+    let downloadurlpdf = ''
+    let downloadurlepub = ''
+    let size = ''
+    let uploaddate = ''
+
     if (err) { console.log(err) }
     else {
         var $ = cheerio.load(html)
-        let $main = $('main.col-md-8')
-        var $ = cheerio.load($main.html())
-        let authors = []
-        let format = []
-
-        $('div.row').each(function (idx, elem) {
-            var $ = cheerio.load(elem)
-            let urlslash = BASEURL + $('.col-md-9 a').attr('href')
-            let url = urlslash.trim().replace('.net//', '.net/')
-            let thumburl = 'http:' + $('.col-md-3 img').attr('src')
-            let imgurl = thumburl.trim().replace('._SL200_', '')
-            let authorelement = $('.col-md-9 .info a')
-            $(authorelement).each(function (i, a) {
-                let authorclean = $(this).text().trim().replace('Download', '')
-                authorclean = authorclean.replaceArray(PUBLISHERLIST, pl)
-                if (authorclean.trim()) {
-                    authors.push(authorclean)
-                }
-            })
-
-            let title = $('.col-md-9 a').attr('title').trim()
-            let publisherelement = $('.col-md-9 .info')[2]
-            var $ = cheerio.load(publisherelement)
-            let publisher = $('a').text().trim()
-            let lastline = $.text().trim().replace(publisher, '')
-            let publishdate = lastline.match(/\d{2,4}(-\d{1,2}){0,2}/g)[0]
-            let page = lastline.replace(publishdate, '').trim().match(/\d{1,6}\spages/g)[0].replace('pages', '').trim()
-            let formatlist = lastline.replace(publishdate, '').replace(page, '').replace('pages', '').trim().split(',')
-
-            for (let i of formatlist) {
-                if (i.trim()) {
-                    format.push(i.trim())
-                }
+        let panelprimary = $('.panel-primary')[0]
+        var $ = cheerio.load(panelprimary)
+        let divdescription = $('.panel-body')
+        description = divdescription.text().trim()
+        var $ = cheerio.load(html)
+        let ullibookdetails = $('ul.list-unstyled li')
+        $(ullibookdetails).each(function (i, li) {
+            let item = $(this).text().trim()
+            if (item.indexOf('Edition:') > -1) {
+                edition = item.replace('Edition:', '').trim()
             }
+            if (item.indexOf('Language:') > -1) {
+                language = item.replace('Language:', '').trim()
+            }
+            if (item.indexOf('ISBN-10:') > -1) {
+                isbn10 = item.replace('ISBN-10:', '').trim()
+            }
+            if (item.indexOf('ISBN-13:') > -1) {
+                isbn13 = item.replace('ISBN-13:', '').trim()
+            }
+        })
 
-            book.create({
-                title: title,
-                href: url,
-                thumburl: thumburl,
-                imgurl: imgurl,
-                author: authors,
-                publisher: publisher,
-                publishdate: publishdate,
-                page: page,
-                format: format
-            }, function (err, msg) {
-                if (err) console.log(err)
-                else (publisher + ': ' + 'title' + ' - inserted.')
-            })
+        var wherestr = { 'href': url };
+        var updatestr = { 'description': description, 'edition': edition, 'language': language, 'isbn10': isbn10, 'isbn13': isbn13, 'lastupdate': new Date() };
 
-            authors = []
-            format = []
+        book.update(wherestr, updatestr, function (err, res) {
+            if (err) {
+                console.log(err);
+            }
+            else {
+                console.log(res);
+            }
         })
     }
 }
  
 String.prototype.replaceArray = function (find, replace) {
-    var replaceString = this;
+    var replaceString = this
     for (var i = 0; i < find.length; i++) {
-        replaceString = replaceString.replace(find[i], replace[i]);
+        replaceString = replaceString.replace(find[i], replace[i])
     }
-    return replaceString;
+    return replaceString
 }

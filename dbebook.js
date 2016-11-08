@@ -12,13 +12,14 @@ var eBookSchema = new Schema({
     format: Array,
     edition: String,
     language: String,
-    isbn10: Number,
-    isbn13: Number,
+    isbn10: String,
+    isbn13: String,
     description: String,
     tableofcontents: String,
     downloadurlpdf: String,
     downloadurlepub: String,
     size: String,
+    tag: Array,
     uploaddate: Date,
     lastupdate: Date
 })

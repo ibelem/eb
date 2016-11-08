@@ -105,7 +105,19 @@ function getBookList(err, html, pub) {
                 publisher: publisher,
                 publishdate: publishdate,
                 page: page,
-                format: format
+                format: format,
+                edition: '',
+                language: '',
+                isbn10: '',
+                isbn13: '',
+                description: '',
+                tableofcontents: '',
+                downloadurlpdf: '',
+                downloadurlepub: '',
+                size: '',
+                tag: [''],
+                uploaddate: '',
+                lastupdate: new Date()
             }, function (err, msg) {
                 if (err) console.log(err)
                 else (publisher + ': ' + 'title' + ' - inserted.')
