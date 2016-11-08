@@ -112,11 +112,8 @@ function getBookList(err, html, pub) {
                 isbn13: '',
                 description: '',
                 tableofcontents: '',
-                downloadurlpdf: '',
-                downloadurlepub: '',
-                size: '',
                 tag: [''],
-                uploaddate: '',
+                download: [''],
                 lastupdate: new Date()
             }, function (err, msg) {
                 if (err) console.log(err)

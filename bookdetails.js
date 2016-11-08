@@ -62,9 +62,6 @@ function reqBookDetail(url) {
             }
         })
 }
-/*
-
-*/
 
 function getBookDetail(err, html, url) {
     let edition = ''
@@ -73,10 +70,7 @@ function getBookDetail(err, html, url) {
     let isbn13 = 0
     let description = ''
     let tableofcontents = ''
-    let downloadurlpdf = ''
-    let downloadurlepub = ''
-    let size = ''
-    let uploaddate = ''
+    let download = ['']
 
     if (err) { console.log(err) }
     else {
@@ -85,6 +79,11 @@ function getBookDetail(err, html, url) {
         var $ = cheerio.load(panelprimary)
         let divdescription = $('.panel-body')
         description = divdescription.text().trim()
+        if(description.indexOf('Table of Contents')>-1){
+            tableofcontents = description.split('Table of Contents')[1].trim()
+            description = description.replace(tableofcontents,'').replace('Table of Contents','').trim()
+        }
+
         var $ = cheerio.load(html)
         let ullibookdetails = $('ul.list-unstyled li')
         $(ullibookdetails).each(function (i, li) {
@@ -104,7 +103,7 @@ function getBookDetail(err, html, url) {
         })
 
         var wherestr = { 'href': url };
-        var updatestr = { 'description': description, 'edition': edition, 'language': language, 'isbn10': isbn10, 'isbn13': isbn13, 'lastupdate': new Date() };
+        var updatestr = { 'description': description, 'edition': edition, 'language': language, 'tableofcontents':tableofcontents, 'isbn10': isbn10, 'isbn13': isbn13, 'lastupdate': new Date() };
 
         book.update(wherestr, updatestr, function (err, res) {
             if (err) {
@@ -115,12 +114,4 @@ function getBookDetail(err, html, url) {
             }
         })
     }
-}
- 
-String.prototype.replaceArray = function (find, replace) {
-    var replaceString = this
-    for (var i = 0; i < find.length; i++) {
-        replaceString = replaceString.replace(find[i], replace[i])
-    }
-    return replaceString
 }
