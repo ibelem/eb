@@ -79,14 +79,27 @@ function getBookDetail(err, html, url) {
         var $ = cheerio.load(panelprimary)
         let divdescription = $('.panel-body')
         description = divdescription.text().trim()
-        if(description.indexOf('Table of Contents')>-1){
+        if (description.indexOf('Table of Contents') > -1) {
             tableofcontents = description.split('Table of Contents')[1].trim()
-            description = description.replace(tableofcontents,'').replace('Table of Contents','').trim()
+            description = description.replace(tableofcontents, '').replace('Table of Contents', '').trim()
         }
 
         var $ = cheerio.load(html)
+        let divdownload = $('#download table tbody tr')
+        $(divdownload).each(function () {
+            let itemdownload = $(this).html().trim()
+            let tditem = itemdownload.replace('<td>').split('</td>')
+            for(i of tditem){
+                let tditemtrim = i.replace('<td>','')
+                if(tditemtrim){
+                    console.log(i)
+                }
+            }
+        })
+
+        var $ = cheerio.load(html)
         let ullibookdetails = $('ul.list-unstyled li')
-        $(ullibookdetails).each(function (i, li) {
+        $(ullibookdetails).each(function () {
             let item = $(this).text().trim()
             if (item.indexOf('Edition:') > -1) {
                 edition = item.replace('Edition:', '').trim()
@@ -102,16 +115,19 @@ function getBookDetail(err, html, url) {
             }
         })
 
-        var wherestr = { 'href': url };
-        var updatestr = { 'description': description, 'edition': edition, 'language': language, 'tableofcontents':tableofcontents, 'isbn10': isbn10, 'isbn13': isbn13, 'lastupdate': new Date() };
-
-        book.update(wherestr, updatestr, function (err, res) {
-            if (err) {
-                console.log(err);
-            }
-            else {
-                console.log(res);
-            }
-        })
+        let wherestr = { 'href': url };
+        let updatestr = { 'description': description, 'edition': edition, 'language': language, 
+        'tableofcontents': tableofcontents, 'isbn10': isbn10, 'isbn13': isbn13, 
+        'lastupdate': new Date() };
+        /*
+                book.update(wherestr, updatestr, function (err, res) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    else {
+                        console.log(res);
+                    }
+                })
+                */
     }
 }
