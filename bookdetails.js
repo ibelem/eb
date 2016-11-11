@@ -6,7 +6,7 @@ const Throttle = require('superagent-throttle')
 const async = require('async')
 const mongoose = require('./db')
 const book = require('./dbebook')
-const ua = require('./ua')
+const common = require('./common')
 const fs = require('fs')
 const path = require('path')
 
@@ -32,7 +32,7 @@ function getURL() {
 
     book.find(wherestr, opt, function (err, res) {
         if (err) {
-            console.log(err)
+            //console.log(err)
         }
         else {
             //console.log(res)
@@ -41,12 +41,12 @@ function getURL() {
     })
 }
 
-reqBookDetail('http://www.foxebook.net/gradle-recipes-for-android-master-the-new-build-system-for-android/')
+//reqBookDetail('http://www.foxebook.net/learning-perl-making-easy-things-easy-and-hard-things-possible-7th-edition/')
 
 function reqBookDetail(url) {
     request
         .get(url)
-        .set('User-Agent', ua)
+        .set('User-Agent', common.ua())
         .set('Accept', 'text/html,application/xhtml+xml,application/xmlq=0.9,image/webp,*/*q=0.8')
         .set('Host', 'www.foxebook.net')
         .set('Referer', 'http://www.foxebook.net/')
@@ -70,7 +70,8 @@ function getBookDetail(err, html, url) {
     let isbn13 = 0
     let description = ''
     let tableofcontents = ''
-    let download = ['']
+    let download = []
+    let downloadsub = []
 
     if (err) { console.log(err) }
     else {
@@ -89,12 +90,23 @@ function getBookDetail(err, html, url) {
         $(divdownload).each(function () {
             let itemdownload = $(this).html().trim()
             let tditem = itemdownload.replace('<td>').split('</td>')
-            for(i of tditem){
-                let tditemtrim = i.replace('<td>','')
-                if(tditemtrim){
-                    console.log(i)
+            let downloaditem = ''
+            for (i of tditem) {
+                let tditemtrim = i.trim()
+                if (tditemtrim) {
+                    if (tditemtrim.indexOf('<a') > -1) {
+                        let expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi
+                        let regex = new RegExp(expression)
+                        downloaditem = tditemtrim.match(regex)[0]
+                        downloadsub.push(downloaditem)
+                    } else {
+                        downloaditem = i.replace('<td>', '').replace('undefined', '')
+                        downloadsub.push(downloaditem)
+                    }
                 }
             }
+            download.push(downloadsub)
+            downloadsub = []
         })
 
         var $ = cheerio.load(html)
@@ -116,18 +128,28 @@ function getBookDetail(err, html, url) {
         })
 
         let wherestr = { 'href': url };
-        let updatestr = { 'description': description, 'edition': edition, 'language': language, 
-        'tableofcontents': tableofcontents, 'isbn10': isbn10, 'isbn13': isbn13, 
-        'lastupdate': new Date() };
-        /*
-                book.update(wherestr, updatestr, function (err, res) {
-                    if (err) {
-                        console.log(err);
-                    }
-                    else {
-                        console.log(res);
-                    }
-                })
-                */
+        let updatestr = {
+            'description': description, 'edition': edition, 'language': language,
+            'tableofcontents': tableofcontents, 'isbn10': isbn10, 'isbn13': isbn13, 'download': download,
+            'lastupdate': new Date()
+        };
+
+        book.update(wherestr, updatestr, function (err, res) {
+            if (err) {
+                console.log(err);
+            }
+            else {
+                console.log(res);
+            }
+        })
+
     }
+}
+
+String.prototype.replaceArray = function (find, replace) {
+    var replaceString = this;
+    for (var i = 0; i < find.length; i++) {
+        replaceString = replaceString.replace(find[i], replace[i]);
+    }
+    return replaceString;
 }

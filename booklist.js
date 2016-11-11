@@ -4,7 +4,7 @@ const request = require('superagent')
 require('superagent-proxy')(request)
 const Throttle = require('superagent-throttle')
 const book = require("./dbebook")
-const ua = require("./ua")
+const common = require('./common')
 
 let proxy = process.env.http_proxy || 'http://child-prc.X.com:913'
 const BASEURL = 'http://www.foxebook.net/'
@@ -38,7 +38,7 @@ for (let pub of PUBLISHER) {
         urlforjson = url
         request
             .get(url)
-            .set('User-Agent', ua)
+            .set('User-Agent', common.ua())
             .set('Accept', 'text/html,application/xhtml+xml,application/xmlq=0.9,image/webp,*/*q=0.8')
             .set('Host', 'www.foxebook.net')
             .set('Referer', 'http://www.foxebook.net/')
