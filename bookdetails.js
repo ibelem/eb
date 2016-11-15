@@ -11,10 +11,6 @@ const fs = require('fs')
 const path = require('path')
 
 let proxy = process.env.http_proxy || 'http://child-prc.X.com:913'
-const BASEURL = 'http://www.foxebook.net/'
-const PUBLISHER = ['oreilly-media']
-const PUBLISHER2 = ['oreilly-media', 'apress', 'manning-publications', 'packtpub', 'wiley', 'wrox', 'addison-wesley-professional']
-const PUBLISHERLIST = ['O\'Reilly Media', 'Apress', 'Manning Publications', 'Packt Publishing', 'Wiley', 'Wrox', 'Addison-Wesley Professional']
 
 let throttle = new Throttle({
     active: true,
@@ -27,19 +23,22 @@ function getURL() {
     //let wherestr = {'author' : 'Mott'}
     let wherestr = {}
     //let opt = { 'href': 1, 'title': 1, "_id": 0 }
-
     let opt = { 'href': 1, "_id": 0 }
 
     book.find(wherestr, opt, function (err, res) {
         if (err) {
-            //console.log(err)
+            console.log(err)
         }
         else {
-            //console.log(res)
-            fs.writeFileSync(path.join(__dirname, 'href.json'), JSON.stringify(res));
+            for(i of res) {
+                //console.log(i.href)
+                reqBookDetail(i.href)
+            }
         }
     })
 }
+
+getURL()
 
 //reqBookDetail('http://www.foxebook.net/learning-perl-making-easy-things-easy-and-hard-things-possible-7th-edition/')
 
