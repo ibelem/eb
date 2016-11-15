@@ -38,7 +38,7 @@ function getURL() {
     })
 }
 
-getURL()
+//getURL()
 
 //reqBookDetail('http://www.foxebook.net/learning-perl-making-easy-things-easy-and-hard-things-possible-7th-edition/')
 
@@ -126,7 +126,7 @@ function getBookDetail(err, html, url) {
             }
         })
 
-        let wherestr = { 'href': url };
+        let wherestr = { 'href': url }
         let updatestr = {
             'description': description, 'edition': edition, 'language': language,
             'tableofcontents': tableofcontents, 'isbn10': isbn10, 'isbn13': isbn13, 'download': download,
@@ -135,15 +135,34 @@ function getBookDetail(err, html, url) {
 
         book.update(wherestr, updatestr, function (err, res) {
             if (err) {
-                console.log(err);
+                console.log(err)
             }
             else {
-                console.log(res);
+                console.log(res)
             }
         })
 
     }
 }
+
+function updateEmptyBookDetail() {
+    let wherestr = { 'isbn10': '' }
+    let opt = { 'href': 1, '_id': 0 }
+
+    book.find(wherestr, opt, function (err, res) {
+        if (err) {
+            console.log(err)
+        }
+        else {
+            for (i of res) {
+                //console.log(i.href)
+                reqBookDetail(i.href)
+            }
+        }
+    })
+}
+
+updateEmptyBookDetail()
 
 String.prototype.replaceArray = function (find, replace) {
     var replaceString = this;

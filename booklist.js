@@ -26,7 +26,7 @@ let throttle = new Throttle({
 
 for (let pub of PUBLISHER) {
     let urllist = []
-    for (let i = 1; i < 50; i++) {
+    for (let i = 1; i < 2; i++) {
         let page = 'http://www.foxebook.net/publisher/' + pub + '/page/' + i + '/'
         urllist.push(page)
     }
@@ -98,28 +98,41 @@ function getBookList(err, html, pub) {
                 }
             }
 
-            book.create({
-                title: title,
-                href: url,
-                thumburl: thumburl,
-                imgurl: imgurl,
-                author: authors,
-                publisher: publisher,
-                publishdate: publishdate,
-                page: page,
-                format: format,
-                edition: '',
-                language: '',
-                isbn10: '',
-                isbn13: '',
-                description: '',
-                tableofcontents: '',
-                tag: [''],
-                download: [''],
-                lastupdate: new Date()
-            }, function (err, msg) {
-                if (err) console.log(err)
-                else (publisher + ': ' + 'title' + ' - inserted.')
+            let wherestr = { 'href': url }
+
+            book.count(wherestr, function (err, res) {
+                if (err) {
+                    console.log(err)
+                }
+                else {
+                    if (res == 0) {
+                        book.create({
+                            title: title,
+                            href: url,
+                            thumburl: thumburl,
+                            imgurl: imgurl,
+                            author: authors,
+                            publisher: publisher,
+                            publishdate: publishdate,
+                            page: page,
+                            format: format,
+                            edition: '',
+                            language: '',
+                            isbn10: '',
+                            isbn13: '',
+                            description: '',
+                            tableofcontents: '',
+                            tag: [''],
+                            download: [''],
+                            lastupdate: new Date()
+                        }, function (err, msg) {
+                            if (err) console.log(err)
+                            else (publisher + ': ' + 'title' + ' - inserted.')
+                        })
+                    } else {
+                        console.log('URL ' + url + ' exists.')
+                    }
+                }
             })
 
             authors = []
