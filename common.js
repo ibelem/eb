@@ -10,4 +10,5 @@ let ua = function () {
     ]
     return ualist[num]
 }
+
 exports.ua = ua
