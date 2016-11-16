@@ -1,16 +1,11 @@
-const express = require('express')
 const cheerio = require('cheerio')
 const request = require('superagent')
 require('superagent-proxy')(request)
 const Throttle = require('superagent-throttle')
-const async = require('async')
-const mongoose = require('./db')
 const book = require('./dbebook')
 const common = require('./common')
-const fs = require('fs')
-const path = require('path')
 
-let proxy = process.env.http_proxy || 'http://child-prc.X.com:913'
+let proxy = process.env.http_proxy || 'http://anr.io:1080'
 
 let throttle = new Throttle({
     active: true,
@@ -19,7 +14,7 @@ let throttle = new Throttle({
     concurrent: 5
 })
 
-function getURL() {
+let getURL = function () {
     //let wherestr = {'author' : 'Mott'}
     let wherestr = {}
     //let opt = { 'href': 1, 'title': 1, "_id": 0 }
@@ -30,19 +25,16 @@ function getURL() {
             console.log(err)
         }
         else {
-            for(i of res) {
-                //console.log(i.href)
+            for (i of res) {
                 reqBookDetail(i.href)
             }
         }
     })
 }
 
-//getURL()
-
 //reqBookDetail('http://www.foxebook.net/learning-perl-making-easy-things-easy-and-hard-things-possible-7th-edition/')
 
-function reqBookDetail(url) {
+let reqBookDetail = function (url) {
     request
         .get(url)
         .set('User-Agent', common.ua())
@@ -62,7 +54,7 @@ function reqBookDetail(url) {
         })
 }
 
-function getBookDetail(err, html, url) {
+let getBookDetail = function (err, html, url) {
     let edition = ''
     let language = ''
     let isbn10 = 0
@@ -131,7 +123,7 @@ function getBookDetail(err, html, url) {
             'description': description, 'edition': edition, 'language': language,
             'tableofcontents': tableofcontents, 'isbn10': isbn10, 'isbn13': isbn13, 'download': download,
             'lastupdate': new Date()
-        };
+        }
 
         book.update(wherestr, updatestr, function (err, res) {
             if (err) {
@@ -145,7 +137,7 @@ function getBookDetail(err, html, url) {
     }
 }
 
-function updateEmptyBookDetail() {
+let updateEmptyBookDetail = function () {
     let wherestr = { 'isbn10': '' }
     let opt = { 'href': 1, '_id': 0 }
 
@@ -155,13 +147,13 @@ function updateEmptyBookDetail() {
         }
         else {
             for (i of res) {
-                //console.log(i.href)
                 reqBookDetail(i.href)
             }
         }
     })
 }
 
+getURL()
 updateEmptyBookDetail()
 
 String.prototype.replaceArray = function (find, replace) {

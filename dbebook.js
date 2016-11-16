@@ -1,4 +1,4 @@
-const mongoose = require('./db.js'), Schema = mongoose.Schema
+const mongoose = require('./db'), Schema = mongoose.Schema
 
 var eBookSchema = new Schema({
     title: String,
