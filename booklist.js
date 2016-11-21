@@ -7,7 +7,7 @@ const common = require('./common')
 
 let proxy = process.env.http_proxy || 'http://anr.io:1080'
 const BASEURL = 'http://www.foxebook.net/'
-const PUBLISHER = ['wiley',]
+const PUBLISHER = ['oreilly-media',]
 const PUBLISHER2 = ['oreilly-media', 'apress', 'manning-publications', 'packtpub', 'wiley', 'wrox', 'addison-wesley-professional']
 const PUBLISHERLIST = ['O\'Reilly Media', 'Apress', 'Manning Publications', 'Packt Publishing', 'Wiley', 'Wrox', 'Addison-Wesley Professional']
 
@@ -25,7 +25,7 @@ let throttle = new Throttle({
 
 for (let pub of PUBLISHER) {
     let urllist = []
-    for (let i = 1; i < 2; i++) {
+    for (let i = 1; i < 50; i++) {
         let page = 'http://www.foxebook.net/publisher/' + pub + '/page/' + i + '/'
         urllist.push(page)
     }
